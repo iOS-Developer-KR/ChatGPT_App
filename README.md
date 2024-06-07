@@ -140,6 +140,10 @@ extension Message: Identifiable {}
     }
 ```
 
+<div align="center">
+  <img src="Images/ImageConversationView.png" width="300" height="600"/>
+</div>
+
 ## 음성 녹음하기
 음성을 녹음을 하기 위해서는 AVFoundation 프레임워크를 사용합니다. 녹음을 하기 위해서는 delegate를 self로 설정하고 record()를 사용합니다. 추가로 isMeteringEnabled를 true로 만들어 사용자로부터 녹음되는 음성의 데이터를 측정할 수 있도록 합니다.
 ```swift
@@ -250,4 +254,7 @@ class LanguageSetting {
 @AppStorage("userLanguageKey") private var locale = "en"
 ```
 
+<div align="center">
+  <img src="Images/SettingView.png" width="300" height="600"/>
+</div>
 
