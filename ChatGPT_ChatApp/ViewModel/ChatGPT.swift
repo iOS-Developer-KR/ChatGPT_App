@@ -107,22 +107,5 @@ public final class ChatGPT {
             conversationErrors[conversation.id] = error
         }
     }
-    
-    @MainActor
-    func getImage(prompt: String, n: Int, completion: @escaping (String) -> Void) async {
-        let query = ImagesQuery(prompt: prompt, model: .dall_e_2,n: 1, size: ._1024)
-        openAIClient.images(query: query) { result in
-            switch result {
-            case .success(let result):
-                if let url = result.data.first?.url {
-                    completion(url)
-                }
-            case .failure(let error):
-                print("이미지 생성 에러 발생:\(error)")
-            }
-        }
-    }
-    
-
 }
 
