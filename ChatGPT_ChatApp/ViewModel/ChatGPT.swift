@@ -9,7 +9,6 @@ import Foundation
 import OpenAI
 import SwiftUI
 import SwiftData
-import Combine
 
 
 @Observable
@@ -26,8 +25,6 @@ public final class ChatGPT {
         (FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)
             .first?.appendingPathComponent("recording.m4a", conformingTo: .audio))!
     }
-    
-    
     
     func selectedConversation() -> Conversation? {
         selectedConversationID.flatMap { id in
