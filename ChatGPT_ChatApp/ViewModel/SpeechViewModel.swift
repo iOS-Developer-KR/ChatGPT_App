@@ -10,6 +10,7 @@ import AVFoundation
 import Foundation
 import OpenAI
 import SwiftUI
+import Speech
 
 @Observable
 class SpeechViewModel: NSObject {
@@ -161,7 +162,7 @@ class SpeechViewModel: NSObject {
             }
         }
     }
-    
+
     func playAudio(data: Data) throws {
         self.state = .playingSpeech
         audioPlayer = try AVAudioPlayer(data: data)

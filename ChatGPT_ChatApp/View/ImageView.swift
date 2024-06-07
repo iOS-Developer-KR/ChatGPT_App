@@ -13,7 +13,6 @@ struct ImageView: View {
     @State private var textfield: String = ""
     @State private var newConversation: Bool = false
     @Environment(\.modelContext) var dbContext
-//    @Query(filter: #Predicate<Conversation> { $0.category == Category.image.rawValue }, sort: \.created, order: .reverse)
     @Query var conversations: [Conversation]
     
     init() {
@@ -23,7 +22,6 @@ struct ImageView: View {
             value.category == 1
         }
         _conversations = Query(filter: filter, sort: \.created, order: .reverse)
-//        /*filter: #Predicate<Conversation> { $0.category == .text },*/ sort: \Conversation.created, order: .reverse
     }
     
     func truncatedText(_ text: String, length: Int) -> String {

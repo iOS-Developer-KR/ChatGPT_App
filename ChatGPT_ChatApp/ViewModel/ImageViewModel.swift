@@ -12,12 +12,19 @@ import SwiftData
 import Combine
 import Alamofire
 
+enum GPTError: String, Error {
+    case unsafe = "Your request was rejected as a result of our safety system. Your prompt may contain text that is not allowed by our safety system."
+    case nodata = "No Data, Check your Internet connection"
+}
 
 @Observable
 public final class ImageViewModel {
     let openAIClient = OpenAI(apiToken: "sk-proj-ovvWWx2QACLabNcJcdv5T3BlbkFJilzZz5OV79BWAS7uL2Qf")
     
     var disableButton: Bool = false
+    var showAlert: Bool = false
+    var alertMessage: String = ""
+
 
     // MARK: - Events
     func createConversation(modelContext: ModelContext) {
@@ -34,7 +41,7 @@ public final class ImageViewModel {
     }
     
     @MainActor
-    func getImage(conversation: Conversation, prompt: String, model: Model, n: Int) async {
+    func getImage(conversation: Conversation, prompt: String, model: Model, n: Int, completion: @escaping (String) -> Void) async {
         let query = ImagesQuery(prompt: prompt, model: model, n: 1, size: ._1024)
         openAIClient.images(query: query) { result in
             switch result {
@@ -42,22 +49,26 @@ public final class ImageViewModel {
                 if let url = result.data.first?.url {
                     AF.request(url)
                         .validate(statusCode: 200..<300)
-                        .responseData { response in
+                        .responseData { [weak self] response in
                             switch response.result {
                             case .success:
                                 if let data = response.data {
                                     conversation.messages.append(Message(id: UUID().uuidString, role: .assistant, content: data, createdAt: Date()))
                                 }
-                            case .failure(let error):
-                                print(error.localizedDescription)
+                            case .failure:
+                                self?.showAlert = true
+                                self?.alertMessage = GPTError.nodata.rawValue
                             }
                         }
                 }
             case .failure(let error):
-                print(error.localizedDescription)
+                print("여기2" + error.localizedDescription)
+                completion(GPTError.unsafe.rawValue)
+                self.showAlert = true
+                self.alertMessage = GPTError.unsafe.rawValue
             }
         }
+        self.disableButton = false
     }
-    
 
 }

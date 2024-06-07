@@ -24,7 +24,7 @@ struct ConversationView: View {
     
     var conversation: Conversation
     
-    func test(messages: [Message]) -> [Message] {
+    func sortedMessage(messages: [Message]) -> [Message] {
         return messages.sorted(by: {$0.createdAt < $1.createdAt})
     }
     
@@ -32,7 +32,7 @@ struct ConversationView: View {
         VStack {
             ScrollViewReader(content: { proxy in
                     ScrollView {
-                        ForEach(test(messages: conversation.messages), id: \.self) { message in
+                        ForEach(sortedMessage(messages: conversation.messages), id: \.self) { message in
                             if message.role == .assistant {
                                 HStack {
                                     VStack {
@@ -100,19 +100,19 @@ struct ConversationView: View {
                         Spacer()
 
                     } //SCROLLVIEW
-                    .onChange(of: test(messages: conversation.messages)) { oldValue, newValue in
+                    .onChange(of: sortedMessage(messages: conversation.messages)) { oldValue, newValue in
                         proxy.scrollTo(newValue[newValue.endIndex - 1])
                     }
                     .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardDidShowNotification)) { notification in
                         withAnimation() {
-                            let value = test(messages: conversation.messages)
+                            let value = sortedMessage(messages: conversation.messages)
                             if !value.isEmpty {   
                                 proxy.scrollTo(value[value.endIndex - 1], anchor: .bottom)
                             }
                         }
                     }
                     .onAppear {
-                        let value = test(messages: conversation.messages)
+                        let value = sortedMessage(messages: conversation.messages)
                         if !value.isEmpty {
                             proxy.scrollTo(value[value.endIndex - 1], anchor: .bottom)
                         }

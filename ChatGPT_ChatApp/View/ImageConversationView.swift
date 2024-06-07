@@ -10,12 +10,17 @@ import OpenAI
 
 struct ImageConversationView: View {
     
-    @Environment(ImageViewModel.self) var imageVM
+    @State var imageVM = ImageViewModel()
     @Environment(\.modelContext) var dbContext
     @State private var textfield: String = ""
     @State private var status: Model = .dall_e_2
     @State private var showingOptions = false
+    @State private var alertMessage: String = ""
     var conversation: Conversation
+    
+    func sortedMessage(messages: [Message]) -> [Message] {
+        return messages.sorted(by: {$0.createdAt < $1.createdAt})
+    }
     
     var body: some View {
         VStack {
@@ -24,58 +29,36 @@ struct ImageConversationView: View {
                     VStack {
                         ForEach(conversation.messages.sorted(by: {$0.createdAt < $1.createdAt}), id: \.id) { message in
                             if message.role == .assistant {
-                                HStack {
-                                    VStack {
-                                        Image(systemName: message.role == .assistant ? "desktopcomputer" : "person")
-                                            .resizable()
-                                            .frame(width: 15, height: 15)
-                                        Text(message.role == .assistant ? "GPT" : "User")
-                                            .frame(width: 40, height: 15)
-                                        Spacer()
-                                    }
-                                    
-                                    if let image = UIImage(data: message.content) {
-                                        Image(uiImage: image)
-                                            .resizable()
-                                            .scaledToFit()
-                                    }
-                                    Spacer()
-                                }
-                                .padding(.top, 5)
+                                assistentMessageView(message: message)
                             } else {
-                                HStack {
-                                    
-                                    Spacer()
-                                                                    
-                                    Text(String(data: message.content, encoding: String.Encoding.utf8) ?? "no value")
-                                        .padding(8)
-                                        .textFieldStyle(.roundedBorder)
-                                        .background(Color("MyMessageColor"))
-                                        .foregroundStyle(.black)
-                                        .clipShape(RoundedRectangle(cornerRadius: 20))
-                                    
-                                    VStack {
-                                        Image(systemName: message.role == .assistant ? "desktopcomputer" : "person")
-                                            .resizable()
-                                            .frame(width: 15, height: 15)
-                                        Text(message.role == .assistant ? "GPT" : "User")
-                                            .frame(width: 40, height: 15)
-                                        Spacer()
-                                    }
-                                    
-                                    
-                                }
-                                .padding(.top, 5)
+                                userMessageView(message: message)
                             }
                         }
-
                         
                         Spacer()
                     }
                 } //SCROLLVIEW
                 .defaultScrollAnchor(.bottom)
+                .modelSelectionDialog(showingOptions: $showingOptions, status: $status, state: .image)
+//                .onChange(of: sortedMessage(messages: conversation.messages)) { oldValue, newValue in
+//                    proxy.scrollTo(newValue[newValue.endIndex - 1])
+//                }
+//                .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardDidShowNotification)) { notification in
+//                    withAnimation() {
+//                        let value = sortedMessage(messages: conversation.messages)
+//                        if !value.isEmpty {
+//                            proxy.scrollTo(value[value.endIndex - 1], anchor: .bottom)
+//                        }
+//                    }
+//                }
+//                .onAppear {
+//                    let value = sortedMessage(messages: conversation.messages)
+//                    if !value.isEmpty {
+//                        proxy.scrollTo(value[value.endIndex - 1], anchor: .bottom)
+//                    }
+//                }
             }) //SCROLLVIEWREADER
-            
+
             
             Spacer()
             
@@ -90,7 +73,9 @@ struct ImageConversationView: View {
                     Task {
                         let message = Message(id: UUID().uuidString, role: .user, content: textfield.data(using: String.Encoding.utf8) ?? Data(), createdAt: Date())
                         conversation.messages.append(message)
-                        await imageVM.getImage(conversation: conversation, prompt: textfield, model: status, n: 1)
+                        await imageVM.getImage(conversation: conversation, prompt: textfield, model: status, n: 1) { error in
+                            alertMessage = error
+                        }
                         textfield = ""
 
                     }
@@ -120,8 +105,57 @@ struct ImageConversationView: View {
                 }
             }
         }
-        .modelSelectionDialog(showingOptions: $showingOptions, status: $status, state: .image)
-        
+        .alert(alertMessage, isPresented: $imageVM.showAlert) { }
+
+    }
+    
+    @ViewBuilder
+    private func assistentMessageView(message: Message) -> some View {
+        HStack {
+            VStack {
+                Image(systemName: message.role == .assistant ? "desktopcomputer" : "person")
+                    .resizable()
+                    .frame(width: 15, height: 15)
+                Text(message.role == .assistant ? "GPT" : "User")
+                    .frame(width: 40, height: 15)
+                Spacer()
+            }
+            
+            if let image = UIImage(data: message.content) {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFit()
+            }
+            Spacer()
+        }
+        .padding(.top, 5)
+    }
+    
+    @ViewBuilder
+    private func userMessageView(message: Message) -> some View {
+        HStack {
+            
+            Spacer()
+                                            
+            Text(String(data: message.content, encoding: String.Encoding.utf8) ?? "no value")
+                .padding(8)
+                .textFieldStyle(.roundedBorder)
+                .background(Color("MyMessageColor"))
+                .foregroundStyle(.black)
+                .clipShape(RoundedRectangle(cornerRadius: 20))
+            
+            VStack {
+                Image(systemName: message.role == .assistant ? "desktopcomputer" : "person")
+                    .resizable()
+                    .frame(width: 15, height: 15)
+                Text(message.role == .assistant ? "GPT" : "User")
+                    .frame(width: 40, height: 15)
+                Spacer()
+            }
+            
+            
+        }
+        .padding(.top, 5)
     }
 }
 #Preview {
