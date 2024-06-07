@@ -233,3 +233,21 @@ func playAudio(data: Data) throws {
     audioPlayer.play()
 }
 ```
+
+## 언어 선택
+### 언어 선택 모델
+언어를 선택할 때 environment의 \.locale를 설정하여 언어를 바꿀 수 있습니다.
+```swift
+@Observable
+class LanguageSetting {
+    var locale = Locale(identifier: "ko")
+}
+```
+
+### 언어 설정 저장
+보안과 관련없는 언어설정을 영구적으로 저장하기 위해서 AppStorage를 선택하였습니다.
+```swift
+@AppStorage("userLanguageKey") private var locale = "en"
+```
+
+
