@@ -13,7 +13,7 @@ import SwiftData
 
 @Observable
 public final class ChatGPT {
-    let openAIClient = OpenAI(apiToken: "INSERT YOUR API KEY")
+    let openAIClient = OpenAI(apiToken: KeyChain.shared.getToken() ?? "no Key")
     
     var conversations: [Conversation] = []
     var conversationErrors: [Conversation.ID: Error] = [:]

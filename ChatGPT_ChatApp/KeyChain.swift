@@ -52,8 +52,7 @@ class KeyChain {
         exist = false
     }
     
-    @discardableResult
-    func getToken() -> Bool {
+    func getToken() -> String? {
         let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword,
                                     kSecAttrService as String: "openAI_Token",
                                     kSecMatchLimit as String: kSecMatchLimitOne,
@@ -62,17 +61,14 @@ class KeyChain {
         
         var item: CFTypeRef?
         let status = SecItemCopyMatching(query as CFDictionary, &item)
-        guard status != errSecItemNotFound else { return false }
-        guard status == errSecSuccess else { return false }
+        guard status != errSecItemNotFound else { return nil }
+        guard status == errSecSuccess else { return nil }
         
-        guard let existingItem = item as? [String : Any],
-            let tokenData = existingItem[kSecValueData as String] as? Data,
-            let _ = String(data: tokenData, encoding: String.Encoding.utf8)
-        else {
-            return false
+        if let existingItem = item as? [String : Any], let tokenData = existingItem[kSecValueData as String] as? Data, let token = String(data: tokenData, encoding: String.Encoding.utf8) {
+            exist = true
+            return token
         }
-        exist = true
-        return true
+        return nil
     }
     
 }

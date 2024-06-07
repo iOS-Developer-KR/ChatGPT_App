@@ -14,7 +14,7 @@ import Speech
 
 @Observable
 class SpeechViewModel: NSObject {
-    let openAIClient = OpenAI(apiToken: "sk-proj-ovvWWx2QACLabNcJcdv5T3BlbkFJilzZz5OV79BWAS7uL2Qf")
+    let openAIClient =  OpenAI(apiToken: KeyChain.shared.getToken() ?? "no Key")
     var selectedVoice: AudioSpeechQuery.AudioSpeechVoice = .alloy {
         didSet { print(selectedVoice.rawValue) }
     }

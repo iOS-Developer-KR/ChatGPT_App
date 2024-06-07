@@ -19,7 +19,7 @@ enum GPTError: String, Error {
 
 @Observable
 public final class ImageViewModel {
-    let openAIClient = OpenAI(apiToken: "sk-proj-ovvWWx2QACLabNcJcdv5T3BlbkFJilzZz5OV79BWAS7uL2Qf")
+    let openAIClient = OpenAI(apiToken: KeyChain.shared.getToken() ?? "no Key")
     
     var disableButton: Bool = false
     var showAlert: Bool = false
