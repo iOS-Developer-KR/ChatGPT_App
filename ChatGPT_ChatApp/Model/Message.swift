@@ -26,23 +26,3 @@ class Message {
 }
 
 extension Message: Identifiable {}
-
-
-//@Model
-//class ImageMessage {
-//    @Attribute(.unique) var id: String
-//    var role: ChatQuery.ChatCompletionMessageParam.Role
-//    var url: String
-//    var createdAt: Date
-//    
-//    init(id: String, role: ChatQuery.ChatCompletionMessageParam.Role, url: String, createdAt: Date) {
-//        self.id = id
-//        self.role = role
-//        self.url = url
-//        self.createdAt = createdAt
-//    }
-//    
-//}
-//
-//extension ImageMessage: Identifiable {}
-//

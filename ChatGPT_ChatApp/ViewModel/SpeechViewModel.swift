@@ -136,22 +136,17 @@ class SpeechViewModel: NSObject {
                 try Task.checkCancellation()
                 
                 let result = try await openAIClient.audioTranscriptions(query: query)
-                print("음성을 텍스트로 변환한 결과:" + result.text)
                 // 텍스트로 질문하기
                 
                 try Task.checkCancellation()
                 let query2 = CompletionsQuery(model: "gpt-3.5-turbo-instruct", prompt: result.text, temperature: 0, maxTokens: 4000, topP: 1, frequencyPenalty: 0, presencePenalty: 0, stop: ["\\n"])
                 let result2 = try await openAIClient.completions(query: query2)
-                result2.choices.forEach { choice in
-                    print("받은값" + choice.text)
-                }
+                
                 var textArray = ""
                 result2.choices.forEach { choice in
                     textArray += choice.text
                 }
-                
-                print("전달받은 텍스트:" + textArray.description)
-                
+            
                 // 질문 답변 읽게 하기
                 let query3 = AudioSpeechQuery(model: .tts_1, input: textArray.description, voice: selectedVoice, responseFormat: .mp3, speed: 1.0)
                 let result3 = try await openAIClient.audioCreateSpeech(query: query3)
